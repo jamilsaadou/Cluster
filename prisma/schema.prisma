@@ -1,0 +1,101 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Region {
+  id          Int      @id @default(autoincrement())
+  nom         String   @unique
+  dateCreation DateTime @default(now())
+  
+  // Relations
+  users       User[]   @relation("UserRegions")
+  sites       Site[]
+  activites   Activite[]
+  @@map("regions")
+}
+
+model User {
+  id                Int      @id @default(autoincrement())
+  prenom            String
+  nom               String
+  email             String   @unique
+  telephone         String
+  motDePasse        String
+  role              String   // superadmin, admin, conseiller, superviseur
+  statut            String   @default("actif") // actif, inactif, suspendu
+  permissions       Json?    // Store permissions as JSON
+  dateCreation      DateTime @default(now())
+  derniereConnexion DateTime?
+  
+  // Additional fields for conseillers
+  specialite        String?  // Required if role is "conseiller"
+  experience        Int?     // Required if role is "conseiller", in years
+  
+  // Relations
+  createdSites      Site[]   @relation("SiteCreator")
+  assignedSites     Site[]   @relation("SiteAssignments")
+  activites         Activite[]
+  regions           Region[] @relation("UserRegions")
+  
+  @@map("users")
+}
+
+
+model Site {
+  id          Int      @id @default(autoincrement())
+  nom         String
+  commune     String
+  village     String
+  superficie  Float
+  coordonnees Json?    // {lat: float, lng: float}
+  operateurs  Json?    // {hommes: int, femmes: int, jeunes: int}
+  systemes    Json?    // {captureSystems: [], irrigationSystems: []}
+  cultures    Json?    // {types: []}
+  photos      Json?    // Array of photo URLs
+  dateCreation DateTime @default(now())
+  
+  // Region relation
+  region      Region   @relation(fields: [regionId], references: [id])
+  regionId    Int
+  
+  // Relations
+  createdBy     User     @relation("SiteCreator", fields: [createdById], references: [id])
+  createdById   Int
+  assignedUsers User[]   @relation("SiteAssignments")
+  activites     Activite[]
+  
+  @@map("sites")
+}
+
+model Activite {
+  id            Int      @id @default(autoincrement())
+  type          String   // Formation, Sensibilisation, etc.
+  thematique    String
+  duree         Float    // in hours
+  geolocalisation Json?  // {lat: float, lng: float}
+  beneficiaires Json?    // {hommes: int, femmes: int, jeunes: int}
+  photos        Json?    // Array of photo URLs
+  commentaires  String?  @db.Text
+  statut        String   @default("en_attente") // approuve, rejete, en_attente
+  dateCreation  DateTime @default(now())
+  
+  // Region relation
+  region        Region   @relation(fields: [regionId], references: [id])
+  regionId      Int
+  
+  // Relations
+  site          Site     @relation(fields: [siteId], references: [id])
+  siteId        Int
+  createdBy     User     @relation(fields: [createdById], references: [id])
+  createdById   Int
+  
+  @@map("activites")
+}

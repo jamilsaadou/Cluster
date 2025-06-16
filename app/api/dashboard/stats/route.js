@@ -92,8 +92,8 @@ export const GET = requireAuth(async (request) => {
         });
         return acc;
       }, {}),
-      captureSystems: sites.reduce((acc, site) => {
-        const systems = site.systemes?.captureSystems || [];
+      captageSystems: sites.reduce((acc, site) => {
+        const systems = site.systemes?.captageSystems || [];
         systems.forEach(system => {
           acc[system] = (acc[system] || 0) + 1;
         });

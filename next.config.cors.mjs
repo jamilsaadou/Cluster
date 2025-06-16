@@ -9,7 +9,7 @@ const nextConfig = {
         headers: [
           {
             key: 'Access-Control-Allow-Origin',
-            value: '*', // Permet l'accès depuis n'importe quel domaine
+            value: '*', // Ou spécifiez des domaines spécifiques
           },
           {
             key: 'Access-Control-Allow-Methods',
@@ -37,6 +37,9 @@ const nextConfig = {
     domains: ['localhost', '207.180.201.77'],
     unoptimized: true,
   },
+
+  // Configuration pour la production
+  output: 'standalone',
   
   // Désactiver le strict mode pour éviter les problèmes avec React 19
   reactStrictMode: false,
@@ -57,6 +60,16 @@ const nextConfig = {
     ];
   },
 
+  // Configuration pour les rewrites (si nécessaire)
+  async rewrites() {
+    return [
+      {
+        source: '/api/v1/:path*',
+        destination: '/api/:path*',
+      },
+    ];
+  },
+
   // Configuration webpack pour optimiser le build
   webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
     // Optimisations pour la production
@@ -69,7 +82,8 @@ const nextConfig = {
 
   // Configuration expérimentale
   experimental: {
-    // Activer les fonctionnalités expérimentales si nécessaire
+    // Désactiver Turbopack si problématique
+    // turbo: false,
   },
 };
 

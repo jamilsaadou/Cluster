@@ -26,12 +26,14 @@ export default function Login() {
       });
 
       const data = await response.json();
+      console.log("data",data);
 
       if (!response.ok) {
         setError(data.error || 'Identifiants invalides. Veuillez réessayer.');
         setLoading(false);
         return;
       }
+      console.log("redirection");
 
       // Login successful, redirect to dashboard
       router.push('/dashboard');

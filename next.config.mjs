@@ -37,9 +37,6 @@ const nextConfig = {
     domains: ['localhost', '207.180.201.77'],
     unoptimized: true,
   },
-
-  // Configuration pour la production
-  output: 'standalone',
   
   // Désactiver le strict mode pour éviter les problèmes avec React 19
   reactStrictMode: false,

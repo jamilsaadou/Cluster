@@ -74,7 +74,9 @@ export default function Users() {
 
   const fetchRegions = async () => {
     try {
-      const response = await fetch('/api/regions');
+      const response = await fetch('/api/regions', {
+        credentials: 'include'
+      });
       if (response.ok) {
         const regionsData = await response.json();
         setRegions(regionsData);
@@ -97,7 +99,9 @@ export default function Users() {
       if (filterStatut) params.append('statut', filterStatut);
       if (filterRegion) params.append('regionId', filterRegion);
 
-      const response = await fetch(`/api/users?${params.toString()}`);
+      const response = await fetch(`/api/users?${params.toString()}`, {
+        credentials: 'include'
+      });
       if (!response.ok) throw new Error('API not available');
       
       const data = await response.json();

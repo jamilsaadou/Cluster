@@ -70,7 +70,9 @@ export default function AddActivity() {
 
   const fetchUserInfo = async () => {
     try {
-      const response = await fetch('/api/auth/me');
+      const response = await fetch('/api/auth/me', {
+        credentials: 'include'
+      });
       if (response.ok) {
         const userData = await response.json();
         setUserRole(userData.role);

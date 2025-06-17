@@ -43,7 +43,9 @@ export default function UserDetail() {
   const fetchUser = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/users/${params.id}`);
+      const response = await fetch(`/api/users/${params.id}`, {
+        credentials: 'include'
+      });
       
       if (!response.ok) {
         throw new Error('API not available');

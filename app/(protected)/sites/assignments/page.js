@@ -25,14 +25,18 @@ export default function SiteAssignments() {
       setLoading(true);
       
       // Fetch conseillers
-      const conseillersResponse = await fetch('/api/users?role=conseiller');
+      const conseillersResponse = await fetch('/api/users?role=conseiller', {
+        credentials: 'include'
+      });
       if (conseillersResponse.ok) {
         const conseillersData = await conseillersResponse.json();
         setConseillers(conseillersData.users || []);
       }
 
       // Fetch all sites
-      const sitesResponse = await fetch('/api/sites?limit=1000');
+      const sitesResponse = await fetch('/api/sites?limit=1000', {
+        credentials: 'include'
+      });
       if (sitesResponse.ok) {
         const sitesData = await sitesResponse.json();
         setSites(sitesData.sites || []);
@@ -42,7 +46,8 @@ export default function SiteAssignments() {
       await fetchAssignments();
     } catch (error) {
       console.error('Error fetching data:', error);
-      alert('Erreur lors du chargement des données. Veuillez réessayer.');
+      console.error('Erreur lors du chargement des données. Veuillez réessayer.');
+    // TODO: Remplacer par une notification toast
     } finally {
       setLoading(false);
     }
@@ -51,7 +56,9 @@ export default function SiteAssignments() {
   const fetchAssignments = async (page = 1) => {
     try {
       setLoadingAssignments(true);
-      const assignmentsResponse = await fetch(`/api/sites/assignments?page=${page}&limit=50`);
+      const assignmentsResponse = await fetch(`/api/sites/assignments?page=${page}&limit=50`, {
+        credentials: 'include'
+      });
       
       if (assignmentsResponse.ok) {
         const assignmentsData = await assignmentsResponse.json();
@@ -78,7 +85,8 @@ export default function SiteAssignments() {
       }
     } catch (error) {
       console.error('Error fetching assignments:', error);
-      alert('Erreur lors du chargement des attributions.');
+      console.error('Erreur lors du chargement des attributions.');
+    // TODO: Remplacer par une notification toast
     } finally {
       setLoadingAssignments(false);
     }
@@ -99,28 +107,45 @@ export default function SiteAssignments() {
     if (conseillerId) {
       try {
         // Récupérer les données du conseiller avec ses régions
-        const conseillerResponse = await fetch(`/api/users/${conseillerId}`);
+        const conseillerResponse = await fetch(`/api/users/${conseillerId}`, {
+        credentials: 'include'
+      });
         if (conseillerResponse.ok) {
           const conseillerData = await conseillerResponse.json();
-          setSelectedConseillerData(conseillerData.user);
           
-          // Filtrer les sites selon les régions du conseiller
-          const conseillerRegionIds = conseillerData.user.regions?.map(region => region.id) || [];
-          const sitesInConseillerRegions = sites.filter(site => 
-            conseillerRegionIds.includes(site.regionId)
-          );
-          setFilteredSites(sitesInConseillerRegions);
+          // L'API retourne directement l'objet utilisateur, pas { user: ... }
+          if (conseillerData && conseillerData.id) {
+            setSelectedConseillerData(conseillerData);
+            
+            // Filtrer les sites selon les régions du conseiller
+            const conseillerRegionIds = conseillerData.regions?.map(region => region.id) || [];
+            const sitesInConseillerRegions = sites.filter(site => 
+              conseillerRegionIds.includes(site.regionId)
+            );
+            setFilteredSites(sitesInConseillerRegions);
+          } else {
+            console.error('Données du conseiller invalides:', conseillerData);
+            console.error('Erreur: données du conseiller non trouvées');
+    // TODO: Remplacer par une notification toast
+          }
+        } else {
+          console.error('Erreur lors de la récupération du conseiller:', conseillerResponse.status);
+          console.error('Erreur lors de la récupération des données du conseiller');
+    // TODO: Remplacer par une notification toast
         }
 
         // Récupérer les sites déjà attribués au conseiller
-        const assignmentsResponse = await fetch(`/api/sites/assignments?userId=${conseillerId}`);
+        const assignmentsResponse = await fetch(`/api/sites/assignments?userId=${conseillerId}`, {
+        credentials: 'include'
+      });
         if (assignmentsResponse.ok) {
           const assignmentsData = await assignmentsResponse.json();
           setSelectedSites(assignmentsData.assignedSites.map(site => site.id));
         }
       } catch (error) {
         console.error('Error fetching conseiller data:', error);
-        alert('Erreur lors du chargement des données du conseiller');
+        console.error('Erreur lors du chargement des données du conseiller');
+    // TODO: Remplacer par une notification toast
       }
     }
   };
@@ -135,7 +160,8 @@ export default function SiteAssignments() {
 
   const handleSaveAssignments = async () => {
     if (!selectedConseiller) {
-      alert('Veuillez sélectionner un conseiller');
+      console.error('Veuillez sélectionner un conseiller');
+    // TODO: Remplacer par une notification toast
       return;
     }
 
@@ -153,15 +179,18 @@ export default function SiteAssignments() {
       });
 
       if (response.ok) {
-        alert('Attributions mises à jour avec succès !');
+        console.error('Attributions mises à jour avec succès !');
+    // TODO: Remplacer par une notification toast
         fetchData(); // Refresh data
       } else {
         const error = await response.json();
-        alert(`Erreur: ${error.error}`);
+        console.error('Erreur: ${error.error}');
+    // TODO: Remplacer par une notification toast
       }
     } catch (error) {
       console.error('Error saving assignments:', error);
-      alert('Erreur lors de la sauvegarde');
+      console.error('Erreur lors de la sauvegarde');
+    // TODO: Remplacer par une notification toast
     } finally {
       setSaving(false);
     }

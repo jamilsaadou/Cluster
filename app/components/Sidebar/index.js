@@ -41,7 +41,9 @@ const Sidebar = () => {
   useEffect(() => {
     const fetchCurrentUser = async () => {
       try {
-        const response = await fetch("/api/auth/me");
+        const response = await fetch("/api/auth/me", {
+          credentials: 'include'
+        });
         if (response.ok) {
           const userData = await response.json();
           setCurrentUser(userData);

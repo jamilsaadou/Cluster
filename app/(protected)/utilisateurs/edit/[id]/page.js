@@ -73,7 +73,9 @@ export default function EditUser() {
 
   const fetchRegions = async () => {
     try {
-      const response = await fetch('/api/regions');
+      const response = await fetch('/api/regions', {
+        credentials: 'include'
+      });
       if (response.ok) {
         const regionsData = await response.json();
         setRegions(regionsData);
@@ -90,7 +92,9 @@ export default function EditUser() {
   const fetchUser = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/users/${params.id}`);
+      const response = await fetch(`/api/users/${params.id}`, {
+        credentials: 'include'
+      });
       
       if (!response.ok) {
         throw new Error('API not available');

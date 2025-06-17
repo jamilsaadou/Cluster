@@ -39,7 +39,9 @@ export default function SitesMap() {
       setError(null);
 
       // Récupérer les sites avec coordonnées
-      const sitesResponse = await fetch('/api/sites?limit=1000');
+      const sitesResponse = await fetch('/api/sites?limit=1000', {
+        credentials: 'include'
+      });
       if (sitesResponse.ok) {
         const sitesData = await sitesResponse.json();
         // Filtrer seulement les sites avec coordonnées
@@ -53,7 +55,9 @@ export default function SitesMap() {
       }
 
       // Récupérer les activités avec géolocalisation
-      const activitesResponse = await fetch('/api/activites?limit=1000');
+      const activitesResponse = await fetch('/api/activites?limit=1000', {
+        credentials: 'include'
+      });
       if (activitesResponse.ok) {
         const activitesData = await activitesResponse.json();
         // Filtrer seulement les activités avec géolocalisation
@@ -67,7 +71,9 @@ export default function SitesMap() {
       }
 
       // Récupérer les régions pour les filtres
-      const regionsResponse = await fetch('/api/regions');
+      const regionsResponse = await fetch('/api/regions', {
+        credentials: 'include'
+      });
       if (regionsResponse.ok) {
         const regionsData = await regionsResponse.json();
         setRegions(regionsData.regions || []);

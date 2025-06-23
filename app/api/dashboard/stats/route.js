@@ -49,6 +49,12 @@ export const GET = requireAuth(async (request) => {
       }
     });
 
+    // Debug activities with missing site
+    const activitiesWithMissingSite = activities.filter(a => !a.site);
+    if (activitiesWithMissingSite.length > 0) {
+      console.log('Activities with missing site:', activitiesWithMissingSite);
+    }
+
     // Calculate statistics
     const stats = {
       // Sites statistics
@@ -62,21 +68,21 @@ export const GET = requireAuth(async (request) => {
         return acc;
       }, { hommes: 0, femmes: 0, jeunes: 0 }),
 
-      // Activities statistics
-      totalActivities: activities.length,
-      activitiesByStatus: activities.reduce((acc, activity) => {
+      // Activities statistics (filter out activities without site)
+      totalActivities: activities.filter(a => a.site).length,
+      activitiesByStatus: activities.filter(a => a.site).reduce((acc, activity) => {
         acc[activity.statut] = (acc[activity.statut] || 0) + 1;
         return acc;
       }, {}),
-      activitiesByType: activities.reduce((acc, activity) => {
+      activitiesByType: activities.filter(a => a.site).reduce((acc, activity) => {
         acc[activity.type] = (acc[activity.type] || 0) + 1;
         return acc;
       }, {}),
-      totalBeneficiaries: activities.reduce((sum, activity) => {
+      totalBeneficiaries: activities.filter(a => a.site).reduce((sum, activity) => {
         const beneficiaires = activity.beneficiaires || {};
         return sum + (beneficiaires.hommes || 0) + (beneficiaires.femmes || 0);
       }, 0),
-      beneficiariesBreakdown: activities.reduce((acc, activity) => {
+      beneficiariesBreakdown: activities.filter(a => a.site).reduce((acc, activity) => {
         const beneficiaires = activity.beneficiaires || {};
         acc.hommes += beneficiaires.hommes || 0;
         acc.femmes += beneficiaires.femmes || 0;
@@ -109,6 +115,7 @@ export const GET = requireAuth(async (request) => {
 
       // Recent activities (last 5)
       recentActivities: activities
+        .filter(a => a.site)
         .sort((a, b) => new Date(b.dateCreation) - new Date(a.dateCreation))
         .slice(0, 5)
         .map(activity => ({

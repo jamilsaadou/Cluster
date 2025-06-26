@@ -196,14 +196,24 @@ export default function Photos({ data = [], onChange, title = "Photos" }) {
                 alt={`Photo ${index + 1}`}
                 className="w-full h-32 object-cover rounded-lg border border-gray-200 dark:border-gray-600 cursor-pointer hover:opacity-75 transition-opacity duration-200"
                 onClick={() => handleViewPhoto(photo)}
+                onLoad={(e) => {
+                  console.log('✅ Image chargée avec succès:', photo);
+                }}
                 onError={(e) => {
+                  console.error('❌ Erreur de chargement de l\'image:', photo);
+                  console.error('Détails de l\'erreur:', e);
                   e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjNmNGY2Ii8+CiAgPHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzljYTNhZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkltYWdlIG5vbiBkaXNwb25pYmxlPC90ZXh0Pgo8L3N2Zz4K';
                   e.target.alt = 'Image non disponible';
+                }}
+                style={{ 
+                  minHeight: '128px',
+                  backgroundColor: '#f3f4f6',
+                  display: 'block'
                 }}
               />
               
               {/* Overlay with actions */}
-              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200 rounded-lg flex items-center justify-center">
+              <div className="absolute inset-0 bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200 rounded-lg flex items-center justify-center">
                 <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex space-x-2">
                   {/* View button */}
                   <button

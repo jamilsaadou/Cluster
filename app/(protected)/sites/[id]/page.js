@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import ImageModal from '../../../components/ImageModal';
 
 export default function ViewSite() {
   const params = useParams();
@@ -12,6 +13,13 @@ export default function ViewSite() {
   const [site, setSite] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [imageModal, setImageModal] = useState({
+    isOpen: false,
+    imageUrl: '',
+    imageAlt: '',
+    imageIndex: 0,
+    images: []
+  });
 
   useEffect(() => {
     fetchSite();
@@ -55,6 +63,51 @@ export default function ViewSite() {
         console.error('Error deleting site:', error);
         alert('Erreur lors de la suppression');
       }
+    }
+  };
+
+  // Fonctions pour gérer le modal d'image
+  const openImageModal = (photos, index) => {
+    setImageModal({
+      isOpen: true,
+      imageUrl: photos[index] || '',
+      imageAlt: `Photo ${index + 1} du site`,
+      imageIndex: index,
+      images: photos
+    });
+  };
+
+  const closeImageModal = () => {
+    setImageModal({
+      isOpen: false,
+      imageUrl: '',
+      imageAlt: '',
+      imageIndex: 0,
+      images: []
+    });
+  };
+
+  const goToPreviousImage = () => {
+    if (imageModal.imageIndex > 0) {
+      const newIndex = imageModal.imageIndex - 1;
+      setImageModal(prev => ({
+        ...prev,
+        imageIndex: newIndex,
+        imageUrl: prev.images[newIndex],
+        imageAlt: `Photo ${newIndex + 1} du site`
+      }));
+    }
+  };
+
+  const goToNextImage = () => {
+    if (imageModal.imageIndex < imageModal.images.length - 1) {
+      const newIndex = imageModal.imageIndex + 1;
+      setImageModal(prev => ({
+        ...prev,
+        imageIndex: newIndex,
+        imageUrl: prev.images[newIndex],
+        imageAlt: `Photo ${newIndex + 1} du site`
+      }));
     }
   };
 
@@ -355,20 +408,9 @@ export default function ViewSite() {
                     src={photo}
                     alt={`Photo ${index + 1} du site`}
                     className="w-full h-32 object-cover rounded-lg border border-gray-200 dark:border-gray-600 cursor-pointer hover:opacity-75 transition-opacity duration-200"
-                    onClick={() => {
-                      // Ouvrir l'image en grand
-                      const newWindow = window.open();
-                      newWindow.document.write(`
-                        <html>
-                          <head><title>Photo ${index + 1}</title></head>
-                          <body style="margin:0; background:#000; display:flex; justify-content:center; align-items:center; min-height:100vh;">
-                            <img src="${photo}" style="max-width:100%; max-height:100%; object-fit:contain;" />
-                          </body>
-                        </html>
-                      `);
-                    }}
+                    onClick={() => openImageModal(site.photos, index)}
                   />
-                  <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200 rounded-lg flex items-center justify-center">
+                  <div className="absolute inset-0 bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200 rounded-lg flex items-center justify-center">
                     <svg className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
                     </svg>
@@ -419,6 +461,18 @@ export default function ViewSite() {
           </div>
         )}
       </div>
+
+      {/* Modal d'image */}
+      <ImageModal
+        isOpen={imageModal.isOpen}
+        onClose={closeImageModal}
+        imageUrl={imageModal.imageUrl}
+        imageAlt={imageModal.imageAlt}
+        imageIndex={imageModal.imageIndex}
+        totalImages={imageModal.images.length}
+        onPrevious={imageModal.imageIndex > 0 ? goToPreviousImage : null}
+        onNext={imageModal.imageIndex < imageModal.images.length - 1 ? goToNextImage : null}
+      />
     </div>
   );
 }

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import BasicInfo from '../../../components/sites/FormSections/BasicInfo';
 import Location from '../../../components/sites/FormSections/Location';
 import Operators from '../../../components/sites/FormSections/Operators';
@@ -9,6 +10,7 @@ import Crops from '../../../components/sites/FormSections/Crops';
 import Photos from '../../../components/sites/FormSections/Photos';
 
 export default function AddSite() {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     basicInfo: {
       name: '',
@@ -36,10 +38,19 @@ export default function AddSite() {
   });
 
   const updateFormData = (section, data) => {
-    setFormData(prev => ({
-      ...prev,
-      [section]: { ...prev[section], ...data }
-    }));
+    if (section === 'photos') {
+      // For photos, data is directly the array of photo URLs
+      setFormData(prev => ({
+        ...prev,
+        [section]: data
+      }));
+    } else {
+      // For other sections, merge the data object
+      setFormData(prev => ({
+        ...prev,
+        [section]: { ...prev[section], ...data }
+      }));
+    }
   };
 
   const validateForm = () => {
@@ -76,32 +87,8 @@ export default function AddSite() {
 
       if (response.ok) {
         alert('Site créé avec succès !');
-        // Reset form
-        setFormData({
-          basicInfo: {
-            name: '',
-          },
-          location: {
-            coordinates: { lat: '', lng: '' },
-            region: '',
-            commune: '',
-            village: '',
-            area: '',
-          },
-          operators: {
-            men: '',
-            women: '',
-            youth: '',
-          },
-          systems: {
-            captureSystems: [],
-            irrigationSystems: [],
-          },
-          crops: {
-            types: [],
-          },
-          photos: [],
-        });
+        // Redirect to sites list
+        router.push('/sites');
       } else {
         alert(`Erreur: ${result.error || 'Une erreur est survenue'}`);
       }
@@ -162,7 +149,7 @@ export default function AddSite() {
           <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700">
             <Photos
               data={formData.photos}
-              onChange={(photos) => updateFormData('photos', { photos })}
+              onChange={(photos) => updateFormData('photos', photos)}
             />
           </div>
         </div>
@@ -170,6 +157,7 @@ export default function AddSite() {
         <div className="flex justify-end space-x-4">
           <button
             type="button"
+            onClick={() => router.push('/sites')}
             className="px-6 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 dark:focus:ring-offset-gray-900 transition-colors duration-200 ease-in-out shadow-sm"
           >
             Annuler

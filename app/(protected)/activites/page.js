@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import ImageModal from '../../components/ImageModal';
 
 export default function Activities() {
   const [activities, setActivities] = useState([]);
@@ -15,6 +16,13 @@ export default function Activities() {
   const [selectedActivity, setSelectedActivity] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
+  const [imageModal, setImageModal] = useState({
+    isOpen: false,
+    imageUrl: '',
+    imageAlt: '',
+    imageIndex: 0,
+    images: []
+  });
 
   // Fonction pour générer le contenu HTML pour l'impression
   const generatePrintContent = (activity) => {
@@ -423,6 +431,63 @@ export default function Activities() {
     } catch (error) {
       console.error('Error updating activity status:', error);
       alert('Erreur lors de la mise à jour');
+    }
+  };
+
+  // Fonctions pour gérer le modal d'image
+  const openImageModal = (photos, index) => {
+    // Préparer les URLs des images
+    const imageUrls = photos.map(photo => {
+      if (!photo || typeof photo !== 'string' || photo.trim() === '') return null;
+      
+      const cleanPhoto = photo.trim();
+      if (cleanPhoto.startsWith('/api/images/')) {
+        return cleanPhoto;
+      } else {
+        return `/api/images/${encodeURIComponent(cleanPhoto)}`;
+      }
+    }).filter(Boolean);
+
+    setImageModal({
+      isOpen: true,
+      imageUrl: imageUrls[index] || '',
+      imageAlt: `Photo ${index + 1} de l'activité`,
+      imageIndex: index,
+      images: imageUrls
+    });
+  };
+
+  const closeImageModal = () => {
+    setImageModal({
+      isOpen: false,
+      imageUrl: '',
+      imageAlt: '',
+      imageIndex: 0,
+      images: []
+    });
+  };
+
+  const goToPreviousImage = () => {
+    if (imageModal.imageIndex > 0) {
+      const newIndex = imageModal.imageIndex - 1;
+      setImageModal(prev => ({
+        ...prev,
+        imageIndex: newIndex,
+        imageUrl: prev.images[newIndex],
+        imageAlt: `Photo ${newIndex + 1} de l'activité`
+      }));
+    }
+  };
+
+  const goToNextImage = () => {
+    if (imageModal.imageIndex < imageModal.images.length - 1) {
+      const newIndex = imageModal.imageIndex + 1;
+      setImageModal(prev => ({
+        ...prev,
+        imageIndex: newIndex,
+        imageUrl: prev.images[newIndex],
+        imageAlt: `Photo ${newIndex + 1} de l'activité`
+      }));
     }
   };
 
@@ -877,24 +942,7 @@ export default function Activities() {
                               src={imageUrl}
                               alt={`Photo ${index + 1} de l'activité`}
                               className="w-full h-full object-cover cursor-pointer hover:opacity-75 transition-opacity duration-200"
-                              onClick={() => {
-                                try {
-                                  // Ouvrir l'image en grand
-                                  const newWindow = window.open();
-                                  if (newWindow) {
-                                    newWindow.document.write(`
-                                      <html>
-                                        <head><title>Photo ${index + 1}</title></head>
-                                        <body style="margin:0; background:#000; display:flex; justify-content:center; align-items:center; min-height:100vh;">
-                                          <img src="${imageUrl}" style="max-width:100%; max-height:100%; object-fit:contain;" alt="Photo ${index + 1}" />
-                                        </body>
-                                      </html>
-                                    `);
-                                  }
-                                } catch (error) {
-                                  console.error('Error opening image in new window:', error);
-                                }
-                              }}
+                              onClick={() => openImageModal(selectedActivity.photos, index)}
                               onLoad={(e) => {
                                 console.log(`Image ${index + 1} loaded successfully`);
                               }}
@@ -915,7 +963,7 @@ export default function Activities() {
                               }}
                             />
                           </div>
-                          <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200 rounded-lg flex items-center justify-center">
+                          <div className="absolute inset-0 bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200 rounded-lg flex items-center justify-center">
                             <svg className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
                             </svg>
@@ -1004,6 +1052,18 @@ export default function Activities() {
           </div>
         </div>
       )}
+
+      {/* Modal d'image */}
+      <ImageModal
+        isOpen={imageModal.isOpen}
+        onClose={closeImageModal}
+        imageUrl={imageModal.imageUrl}
+        imageAlt={imageModal.imageAlt}
+        imageIndex={imageModal.imageIndex}
+        totalImages={imageModal.images.length}
+        onPrevious={imageModal.imageIndex > 0 ? goToPreviousImage : null}
+        onNext={imageModal.imageIndex < imageModal.images.length - 1 ? goToNextImage : null}
+      />
     </div>
   );
 }

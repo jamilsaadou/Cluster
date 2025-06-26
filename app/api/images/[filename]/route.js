@@ -5,6 +5,7 @@ import path from 'path';
 
 const UPLOAD_DIR = path.join(process.cwd(), 'uploads', 'images');
 
+// Cette route est publique - pas besoin d'authentification pour servir les images
 export async function GET(request, { params }) {
   try {
     const { filename } = await params;
@@ -50,6 +51,9 @@ export async function GET(request, { params }) {
       headers: {
         'Content-Type': contentType,
         'Cache-Control': 'public, max-age=31536000, immutable', // Cache pendant 1 an
+        'Access-Control-Allow-Origin': '*', // Permettre l'accès depuis n'importe quelle origine
+        'Access-Control-Allow-Methods': 'GET',
+        'Access-Control-Allow-Headers': 'Content-Type',
       },
     });
 

@@ -89,6 +89,11 @@ export function middleware(request) {
   }
 
   // Pour les routes non-API, gérer l'authentification
+  // EXCEPTION: Les routes d'images sont publiques
+  if (request.nextUrl.pathname.startsWith("/api/images/")) {
+    return NextResponse.next();
+  }
+  
   let token = request.cookies.get("token")?.value;
   
   // Si pas de cookie token, essayer le Bearer token

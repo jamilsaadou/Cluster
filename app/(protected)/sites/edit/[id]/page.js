@@ -138,7 +138,7 @@ export default function EditSite() {
 
       if (response.ok) {
         alert('Site modifié avec succès !');
-        router.push(`/sites/${siteId}`);
+        router.push('/sites');
       } else {
         alert(`Erreur: ${result.error || 'Une erreur est survenue'}`);
       }

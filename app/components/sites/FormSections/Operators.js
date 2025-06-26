@@ -9,7 +9,7 @@ export default function Operators({ data, onChange }) {
   };
 
   const calculateTotal = () => {
-    return (parseInt(data.men) || 0) + (parseInt(data.women) || 0) + (parseInt(data.youth) || 0);
+    return (parseInt(data.men) || 0) + (parseInt(data.women) || 0);
   };
 
   return (
